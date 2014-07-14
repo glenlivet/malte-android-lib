@@ -1,6 +1,6 @@
 package org.malte.android;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,14 +11,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 
-/**
- * 
- * 
- * @since 0.1.0.0
- * @author shulai.zhang
- * 
- */
-public abstract class EliteActivity extends ListActivity {
+public abstract class EliteBasicActivity extends Activity {
 
 	final Messenger uiMessenger = new Messenger(
 			new EliteActivityIncomingHandler(this));
@@ -66,9 +59,9 @@ public abstract class EliteActivity extends ListActivity {
 
 	static class EliteActivityIncomingHandler extends Handler {
 
-		EliteActivity ea;
+		EliteBasicActivity ea;
 
-		public EliteActivityIncomingHandler(EliteActivity ea) {
+		public EliteActivityIncomingHandler(EliteBasicActivity ea) {
 			this.ea = ea;
 		}
 
@@ -94,5 +87,4 @@ public abstract class EliteActivity extends ListActivity {
 	public LocalService getLocalService() {
 		return localService;
 	}
-
 }

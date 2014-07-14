@@ -77,7 +77,9 @@ public abstract class ViewContent {
 	 * @param viewId
 	 * @return
 	 */
-	public abstract Object getViewValue(int viewId);
+	public Object getViewValue(int viewId){
+		return null;
+	}
 	
 
 }

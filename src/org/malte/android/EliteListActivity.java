@@ -29,7 +29,9 @@ public abstract class EliteListActivity<T> extends EliteActivity {
 	/**
 	 * 画除ListView以外的部分
 	 */
-	protected abstract void drawExtraView();
+	protected void drawExtraView(){
+		
+	}
 
 	/**
 	 * Row Layout ID
