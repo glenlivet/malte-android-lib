@@ -8,23 +8,37 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 
+/**
+ * A activity with built-in ExpandableListView and the corresponded adapter.
+ * 
+ * @author shulai.zhang
+ *
+ * @param <T> a class implements Expandable. The data structure of the expandable list.
+ */
 public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 		extends EliteActivity {
 	
+	/**
+	 * the expandable list adapter.
+	 */
 	protected EliteExpandableListAdapater adapter;
 	
+	/**
+	 * the expandable list view
+	 */
 	protected ExpandableListView listView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//set and config the list view.
 		adapter = new EliteExpandableListAdapater();
 		listView = (ExpandableListView) findViewById(getExpandableListViewId());
 		listView.setAdapter(adapter);
 	}
 
 	/**
-	 * 获取ExpandableListView的ID
+	 * Get the expandable list view ID.
 	 * @return
 	 */
 	protected abstract int getExpandableListViewId();
@@ -33,19 +47,19 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	 * child layout id
 	 * @return
 	 */
-	public abstract int getChildLayoutId();
+	protected abstract int getChildLayoutId();
 	
 	/**
 	 * group layout id
 	 * @return
 	 */
-	public abstract int getGroupLayoutId();
+	protected abstract int getGroupLayoutId();
 	
 	/**
 	 * see {@link BaseExpandableListAdapter#getChildView(int, int, boolean, View, ViewGroup)}
 	 * 
-	 * @see BaseExpandableListAdapter
-	 * @param child 当前画的child对象
+	 * @see {@link BaseExpandableListAdapter}
+	 * @param child the displaying data in this child view.
 	 * @param groupPosition
 	 * @param childPosition
 	 * @param isLastChild
@@ -53,7 +67,7 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	 * @param parent
 	 * @return
 	 */
-	public abstract View drawChildView(Object child, int groupPosition,
+	protected abstract View drawChildView(Object child, int groupPosition,
 			int childPosition, boolean isLastChild, View convertView,
 			ViewGroup parent);
 
@@ -61,20 +75,20 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	 * see {@link BaseExpandableListAdapter#getGroupView(int, boolean, View, ViewGroup)}
 	 * 
 	 * @see BaseExpandableListAdapter
-	 * @param group	当前绘制的Expandable对象
+	 * @param group	the displaying data in this group
 	 * @param groupPosition
 	 * @param isExpanded
 	 * @param convertView
 	 * @param parent
 	 * @return
 	 */
-	public abstract View drawGroupView(T group, int groupPosition, boolean isExpanded,
+	protected abstract View drawGroupView(T group, int groupPosition, boolean isExpanded,
 			View convertView, ViewGroup parent);
 
 	
 	
 	@Override
-	public void drawView() {
+	protected void drawView() {
 		drawExtraView();
 		if(adapter != null){
 			adapter.notifyDataSetChanged();
@@ -82,7 +96,7 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	}
 	
 	/**
-	 * 画出了ListView以外的部分
+	 * draw the other area except the expandable view.
 	 */
 	private void drawExtraView() {
 		
@@ -91,9 +105,15 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	@Override
 	protected abstract Class<? extends EliteExpandableListService<T>> getLocalServiceClass();
 
-	public abstract ExpandableListViewContent<T> getViewContent();
+	protected abstract ExpandableListViewContent<T> getViewContent();
 
-	class EliteExpandableListAdapater extends BaseExpandableListAdapter {
+	/**
+	 * the built-in adapter.
+	 * 
+	 * @author shulai.zhang
+	 *
+	 */
+	private class EliteExpandableListAdapater extends BaseExpandableListAdapter {
 
 		LayoutInflater inflater;
 
@@ -183,8 +203,20 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	 * @param groupPosition
 	 * @return
 	 */
-	public long getGroupId(int groupPosition) {
+	protected long getGroupId(int groupPosition) {
 		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	/**
+	 * See {@link BaseExpandableListAdapter#getChildId(int, int)}
+	 * 
+	 * @see BaseExpandableListAdapter
+	 * @param groupPosition
+	 * @param childPosition
+	 * @return
+	 */
+	protected long getChildId(int groupPosition, int childPosition) {
 		return 0;
 	}
 
@@ -196,16 +228,10 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	 * @param childPosition
 	 * @return
 	 */
-	public boolean isChildSelectable(int groupPosition, int childPosition) {
+	protected boolean isChildSelectable(int groupPosition, int childPosition) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	
-
-	
-
-
 
 	/**
 	 * See {@link BaseExpandableListAdapter#hasStableIds()}
@@ -213,11 +239,8 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	 * @see BaseExpandableListAdapter
 	 * @return
 	 */
-	public boolean hasStableIds() {
+	protected boolean hasStableIds() {
 		return false;
 	}
 
-	public long getChildId(int groupPosition, int childPosition) {
-		return 0;
-	}
 }
