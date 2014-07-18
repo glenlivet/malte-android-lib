@@ -6,11 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 
 public abstract class EliteExpandableListActivity<T extends Expandable<?>>
-		extends EliteBasicActivity {
+		extends EliteActivity {
 	
 	protected EliteExpandableListAdapater adapter;
 	
@@ -90,7 +89,7 @@ public abstract class EliteExpandableListActivity<T extends Expandable<?>>
 	}
 
 	@Override
-	protected abstract Class<? extends LocalExpandableListService<T>> getLocalServiceClass();
+	protected abstract Class<? extends EliteExpandableListService<T>> getLocalServiceClass();
 
 	public abstract ExpandableListViewContent<T> getViewContent();
 

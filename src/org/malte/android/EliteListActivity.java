@@ -1,30 +1,72 @@
 package org.malte.android;
 
+import android.app.ListActivity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
-public abstract class EliteListActivity<T> extends EliteActivity {
+public abstract class EliteListActivity<T> extends ListActivity {
+	
+	final Messenger uiMessenger = new Messenger(
+			new EliteActivityIncomingHandler(this));
+
+	private EliteService localService;
+	
+	protected abstract int getLayoutId();
 	
 	protected EliteArrayAdapter adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(getLayoutId());
+		drawView();
 		adapter = new EliteArrayAdapter();
 		setListAdapter(adapter);
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		Intent intent = new Intent(this, getLocalServiceClass());
+		intent.putExtra(EliteService.MESSENGER_KEY_IN_BUNDLE, uiMessenger);
+		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		unbindService(mConnection);
+	}
+	
 	public void drawView() {
 		drawExtraView();
 		if(adapter != null){
 			adapter.notifyDataSetChanged();
 		}
 	}
+	
+	private ServiceConnection mConnection = new ServiceConnection() {
+
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			EliteService.LocalBinder b = (EliteService.LocalBinder) binder;
+			localService = b.getService();
+		}
+
+		public void onServiceDisconnected(ComponentName className) {
+			localService = null;
+		}
+	};
 	
 	/**
 	 * 画除ListView以外的部分
@@ -46,7 +88,12 @@ public abstract class EliteListActivity<T> extends EliteActivity {
 	 */
 	protected abstract ListViewContent<T> getViewContent();
 	
-	protected abstract Class<? extends LocalListService<T>> getLocalServiceClass();
+	/**
+	 * 获取于该Activity绑定的后台Service
+	 * 
+	 * @return
+	 */
+	protected abstract Class<? extends EliteListService<T>> getLocalServiceClass();
 	
 	/**
 	 * 画某一行，大部分情况需要在子类中Override
@@ -91,6 +138,43 @@ public abstract class EliteListActivity<T> extends EliteActivity {
 		}
 	}
 	
-	
+	static class EliteActivityIncomingHandler extends Handler {
 
+		EliteListActivity<?> ea;
+
+		public EliteActivityIncomingHandler(EliteListActivity<?> ea) {
+			this.ea = ea;
+		}
+
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case EliteService.MSG_NEED_UPDATE_VIEW:
+				ea.drawView();
+				break;
+			case EliteService.MSG_NEED_UPDATE_TITLE:
+				ea.updateTitleInActionBar();
+				break;
+			default:
+				ea.handleServiceMessage(msg);
+				break;
+			}
+		}
+	}
+	
+	public void updateTitleInActionBar() {
+		getActionBar().setTitle(getLocalService().getTitle());
+	}
+	
+	public EliteService getLocalService() {
+		return localService;
+	}
+	
+	/**
+	 * 处理Service发送过来的信息
+	 * @param msg
+	 */
+	public void handleServiceMessage(Message msg){
+		
+	};
 }

@@ -1,6 +1,6 @@
 package org.malte.android;
 
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -11,23 +11,16 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 
-/**
- * 
- * 
- * @since 0.1.0.0
- * @author shulai.zhang
- * 
- */
-public abstract class EliteActivity extends ListActivity {
+public abstract class EliteActivity extends Activity {
 
 	final Messenger uiMessenger = new Messenger(
 			new EliteActivityIncomingHandler(this));
 
-	private LocalService localService;
+	private EliteService localService;
 
 	public abstract void drawView();
 
-	protected abstract Class<? extends LocalService> getLocalServiceClass();
+	protected abstract Class<? extends EliteService> getLocalServiceClass();
 	
 	protected abstract int getLayoutId();
 	
@@ -42,7 +35,7 @@ public abstract class EliteActivity extends ListActivity {
 	protected void onResume() {
 		super.onResume();
 		Intent intent = new Intent(this, getLocalServiceClass());
-		intent.putExtra(LocalService.MESSENGER_KEY_IN_BUNDLE, uiMessenger);
+		intent.putExtra(EliteService.MESSENGER_KEY_IN_BUNDLE, uiMessenger);
 		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 	}
 	
@@ -55,7 +48,7 @@ public abstract class EliteActivity extends ListActivity {
 	private ServiceConnection mConnection = new ServiceConnection() {
 
 		public void onServiceConnected(ComponentName className, IBinder binder) {
-			LocalService.LocalBinder b = (LocalService.LocalBinder) binder;
+			EliteService.LocalBinder b = (EliteService.LocalBinder) binder;
 			localService = b.getService();
 		}
 
@@ -75,24 +68,33 @@ public abstract class EliteActivity extends ListActivity {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case LocalService.MSG_NEED_UPDATE_VIEW:
+			case EliteService.MSG_NEED_UPDATE_VIEW:
 				ea.drawView();
 				break;
-			case LocalService.MSG_NEED_UPDATE_TITLE:
+			case EliteService.MSG_NEED_UPDATE_TITLE:
 				ea.updateTitleInActionBar();
 				break;
 			default:
-				super.handleMessage(msg);
+				ea.handleServiceMessage(msg);
+				break;
 			}
 		}
+		
 	}
 
 	public void updateTitleInActionBar() {
 		getActionBar().setTitle(getLocalService().getTitle());
 	}
 	
-	public LocalService getLocalService() {
+	public EliteService getLocalService() {
 		return localService;
 	}
-
+	
+	/**
+	 * 处理Service发送过来的信息
+	 * @param msg
+	 */
+	public void handleServiceMessage(Message msg){
+		
+	};
 }
